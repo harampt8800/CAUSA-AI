@@ -131,7 +131,7 @@
     <div class="mark">C</div>
     <div>
       <h1>CAUSA</h1>
-      <div class="tagline">Causal Audit for Unbiased Scoring &amp; Allocation</div>
+      <div class="tagline">Causal Assessment for Underwriting Screening &amp; Accountability</div>
     </div>
   </header>
 
@@ -486,9 +486,6 @@ async function runAnalysis(){
     const startX = pos(0);
     const trueEndX = pos(logIndirect + logDirect); // = 총효과 지점 (정확한 값, 절대 왜곡하지 않음)
 
-    // 간접효과 구간이 직접효과에 비해 너무 작아 안 보이는 문제 방지:
-    // 시작점과 최종 총효과 지점(trueEndX)은 정확히 고정하고, 그 사이의 "경계선" 위치만
-    // 최소 8%는 각 구간에 배분되도록 시각적으로 보정한다 (숫자 라벨은 항상 정확한 값 그대로 표기)
     const rawFraction = (logTotal !== 0) ? (logIndirect / logTotal) : 0.5;
     const clampedFraction = Math.max(0.08, Math.min(0.92, rawFraction));
     const afterIndirectX = startX + clampedFraction * (trueEndX - startX);
@@ -500,10 +497,8 @@ async function runAnalysis(){
       return `left:${left}%;width:${width}%;background:${color};`;
     }
 
-    // 라벨은 실제 좌표(startX / afterIndirectX / trueEndX)에 정확히 맞춰 배치한다.
-    // 세 라벨 중 어느 쌍이든 너무 가까우면(겹치면), x좌표 순으로 정렬한 뒤 최소 간격을 확보하도록 밀어낸다.
     function clampPct(x){ return Math.max(6, Math.min(94, x)); }
-    const MIN_GAP = 15; // 라벨 간 최소 간격(%)
+    const MIN_GAP = 15;
 
     let labelDefs = [
       { key: 'start', x: clampPct(startX), text: '0 (기준)' },
@@ -516,7 +511,6 @@ async function runAnalysis(){
         labelDefs[i].x = labelDefs[i-1].x + MIN_GAP;
       }
     }
-    // 다시 오른쪽 끝을 넘어가면 전체를 왼쪽으로 당겨서 컨테이너 안에 맞춤
     const overflow = labelDefs[labelDefs.length-1].x - 94;
     if (overflow > 0) {
       labelDefs.forEach(l => l.x -= overflow);
